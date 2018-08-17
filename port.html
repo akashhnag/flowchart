@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>port</title>
+    </head>
+    <script src="go.js"></script>
+    <script>
+        function init(){
+            var $=go.GraphObject.make;
+
+            var diagram=$(go.Diagram,"myDiagramDiv",{ allowDrop: true });
+
+            
+
+            diagram.nodeTemplateMap.add("",$(go.Node, "Vertical",
+      //$(go.Shape, "Rectangle", { fill: "lightgray" }),
+      $(go.Picture, {source:"images/images1.jpg"}),
+      $(go.Panel, "Table",
+        $(go.RowColumnDefinition,
+          { column: 0, alignment: go.Spot.Left}),
+        $(go.RowColumnDefinition,
+          { column: 2, alignment: go.Spot.Right }),
+        $(go.TextBlock,  // the node title
+          { column: 0, row: 0, columnSpan: 3, alignment: go.Spot.Center,
+            font: "bold 10pt sans-serif", margin: new go.Margin(4, 2) },
+          new go.Binding("text", "key")),
+        $(go.Panel, "Horizontal",
+          { column: 0, row: 1 },
+          $(go.Shape,  // the "A" port
+            { width: 6, height: 6, portId: "A", toSpot: go.Spot.Left,
+              toLinkable: true, toMaxLinks: 1 }),  // allow user-drawn links from here
+          $(go.TextBlock, "A")  // "A" port label
+        ),
+        $(go.Panel, "Horizontal",
+          { column: 0, row: 2 },
+          $(go.Shape,  // the "B" port
+            { width: 6, height: 6, portId: "B", toSpot: go.Spot.Left,
+              toLinkable: true, toMaxLinks: 1 }),  // allow user-drawn links from here
+          $(go.TextBlock, "B")  // "B" port label
+        ),
+        $(go.Panel, "Horizontal",
+          { column: 2, row: 1, rowSpan: 2 },
+          $(go.TextBlock, "Out"),  // "Out" port label
+          $(go.Shape,  // the "Out" port
+            { width: 6, height: 6, portId: "Out", fromSpot: go.Spot.Right,
+              fromLinkable: true })  // allow user-drawn links to here
+        )
+      )
+    ))
+
+           //diagram.nodeTemplate =
+    
+
+  diagram.linkTemplate =
+    $(go.Link,
+      { routing: go.Link.Orthogonal, corner: 3 },
+      $(go.Shape),
+      $(go.Shape, { toArrow: "Standard" })
+    );
+
+  diagram.layout = $(go.LayeredDigraphLayout, { columnSpacing: 10 });
+  diagram.initialContentAlignment = go.Spot.Center;
+
+  diagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
+
+  diagram.model =
+    $(go.GraphLinksModel,
+      { linkFromPortIdProperty: "fromPort",  // required information:
+        linkToPortIdProperty: "toPort",      // identifies data property names
+        nodeDataArray: [
+          { key: "Add1" },
+          { key: "Add2" },
+          { key: "Subtract1" }
+        ],
+        linkDataArray: [
+          // no predeclared links
+        ] });
+
+     myPalette =
+      $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
+        {
+          scrollsPageOnFocus: false,
+          nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by myDiagram
+          model: new go.GraphLinksModel([  // specify the contents of the Palette
+            { category: "Start", text: "Start" },
+            { text: "Step" },
+            { category: "Conditional", text: "???" },
+            { category: "End", text: "End" },
+            { category: "Comment", text: "Comment" }
+          ])
+        });
+  } // end init
+  // Show the diagram's model in JSON format that the user may edit
+  function save() {
+    document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+    myDiagram.isModified = false;
+  }
+  function load() {
+    myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+  }
+  // add an SVG rendering of the diagram at the end of this page
+  function makeSVG() {
+    var svg = myDiagram.makeSvg({
+        scale: 0.5
+      });
+    svg.style.border = "1px solid black";
+    obj = document.getElementById("SVGArea");
+    obj.appendChild(svg);
+    if (obj.children.length > 0) {
+      obj.replaceChild(svg, obj.children[0]);
+    }
+  }
+
+             
+    </script>
+    <body onload="init()">
+      <div style="width: 100%; display: flex; justify-content: space-between">
+        <div id="myPaletteDiv" style="width: 350px; margin-right: 2px; background-color: whitesmoke; border: solid 1px black"></div>
+      <div id="myDiagramDiv" style="flex-grow: 1; height: 750px; border: solid 1px black"></div>
+      </div>>
+      
+    </body>
+</html>
